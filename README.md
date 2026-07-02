@@ -121,21 +121,26 @@ MiniSearchEngine/
 
 ## 📸 Screenshots
 
-### Home Page
+<h2 align="center">Home Page</h2>
 
-> Add Screenshot Here
+<p align="center">
+  <img src="assets/Screenshot 2026-07-03 032755.png" width="900">
+</p>
+---
+
+<h2 align="center">Search Results</h2>
+
+<p align="center">
+  <img src="assets/Screenshot 2026-07-03 032930.png" width="900">
+</p>
 
 ---
 
-### Search Results
+<h2 align="center">Spell Correction</h2>
 
-> Add Screenshot Here
-
----
-
-### Spell Correction
-
-> Add Screenshot Here
+<p align="center">
+  <img src="assets/Screenshot 2026-07-03 033012.png" width="900">
+</p>
 
 ---
 
