@@ -6,6 +6,8 @@
 #include <filesystem>
 #include <fstream>
 
+#include <chrono>
+
 // Dependencies downloaded by CMake
 #include "httplib.h"
 #include "nlohmann/json.hpp"
@@ -154,6 +156,8 @@ void loadDocumentsFromFolder(const std::string& folder)
 }
 
 int main() {
+    auto start = std::chrono::high_resolution_clock::now();
+
     std::cout << "Initializing Search Engine Database..." << std::endl;
     loadDocumentsFromFolder("../documents");
     std::cout << "Successfully indexed " << documents.size() << " documents." << std::endl;
@@ -275,6 +279,7 @@ int main() {
             return;
         }
         std::cout << "[LRU Cache] MISS for key: \"" << cacheKey << "\" — computing results..." << std::endl;
+        auto start1 = std::chrono::high_resolution_clock::now();
 
         std::vector<std::string> queryWords = tokenize(query);
         
@@ -298,13 +303,19 @@ int main() {
         std::vector<SearchResult> rankedResults;
         {
             std::lock_guard<std::mutex> lock(db_mutex);
-            rankedResults = TFIDF::rankDocuments(queryWords, matchingDocIds, searchIndex, totalDocs);
+            rankedResults = BM25::rankDocuments(queryWords, matchingDocIds, searchIndex, totalDocs);
         }
 
         // Limit to top 10 relevant documents
         if (rankedResults.size() > 10) {
             rankedResults.resize(10);
         }
+
+        auto end1 = std::chrono::high_resolution_clock::now();
+
+        std::cout << "Index Build Time : "
+         << std::chrono::duration_cast<std::chrono::milliseconds>(end1-start1).count()
+         << " ms\n";
 
         // Prepare response JSON
         json resultsJson = json::array();
@@ -354,6 +365,9 @@ int main() {
                 std::cout << "[SpellCheck Debug] Word: \"" << cleaned << "\" | Found in index: " << (foundInTrie ? "YES" : "NO") << std::endl;
                 
                 if (!cleaned.empty() && !foundInTrie) {
+                    auto start2 = std::chrono::high_resolution_clock::now();
+
+
                     // This word is misspelled or not in index, compute suggestions
                     std::vector<std::string> sugs = SpellCorrector::getSuggestions(cleaned, vocab, 2);
                     std::cout << "[SpellCheck Debug] -> Found " << sugs.size() << " spelling candidates for \"" << cleaned << "\":" << std::endl;
@@ -364,6 +378,12 @@ int main() {
                     if (!sugs.empty()) {
                         suggestionsJson[rawWord] = sugs;
                     }
+
+                    auto end2 = std::chrono::high_resolution_clock::now();
+
+                    std::cout << "Index Build Time : "
+                     << std::chrono::duration_cast<std::chrono::milliseconds>(end2-start2).count()
+                     << " ms\n";
                 }
             }
             std::cout << "[SpellCheck Debug] ================================\n" << std::endl;
@@ -435,6 +455,12 @@ int main() {
         
         res.set_content(response.dump(), "application/json");
     });
+
+    auto end = std::chrono::high_resolution_clock::now();
+
+    std::cout << "Index Build Time : "
+         << std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count()
+         << " ms\n";
 
     std::cout << "Starting C++ search engine API server on http://localhost:8080 ..." << std::endl;
     svr.listen("0.0.0.0", 8080);
