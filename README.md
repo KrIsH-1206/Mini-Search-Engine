@@ -1,6 +1,6 @@
 # 🔍 Mini Search Engine
 
-A high-performance **C++ Search Engine** built from scratch for efficient document retrieval over a large-scale Wikipedia corpus. The project uses classic Information Retrieval techniques including **Inverted Index**, **Trie**, **TF-IDF Ranking**, **Spell Correction**, **Multi-word Search**, and **LRU Cache** to provide fast and relevant search results.
+A high-performance **C++ Search Engine** built from scratch for efficient document retrieval over a large-scale Wikipedia corpus. The project uses classic Information Retrieval techniques including **Inverted Index**, **Trie**, **BM25 Ranking**, **Spell Correction**, **Multi-word Search**, and **LRU Cache** to provide fast and relevant search results.
 
 ---
 
